@@ -54,11 +54,10 @@ function handleSearch(cityName) { //retrieves city name from search bar
 
     fetch(buildURL(cityName))
         .then(function (response) {
-            if (!response.ok) {
-                alert("Geolocation not found"); //alert if a non existant city is entered
+            if (response.status === 404) {
+                alert("Invalid city name");
+                return;
             } else {
-
-
                 if (searchHistory.includes(cityName) === false) { //checks to see if the array already includes the city name I searched
                     var cityBtn = $('<button>').text(cityName);
                     cityBtn.addClass("btn btn-secondary city-btn");
@@ -72,7 +71,9 @@ function handleSearch(cityName) { //retrieves city name from search bar
 
             return response.json();
         }).then(function (data) {
+            if(data){
             showWeather(data);
+            }
         });
 }
 
