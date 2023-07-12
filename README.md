@@ -1,4 +1,4 @@
-# weather-checker
+# 5-day-forecast
 
 This is an app that wil show you a 5-day forecast depending on what city you search for.
 
