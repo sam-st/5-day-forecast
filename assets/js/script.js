@@ -9,15 +9,21 @@ var btnArray = [];
 var weatherIconEl = $(".weather-icon");
 var cardEl = $(".card-body");
 var today = dayjs(); //used this to display the date in a certain format.
-var keys = Object.keys(localStorage); //gets all the keys from my local storage
+var searchData = localStorage.getItem("searchData");
+var searchHistory;
 
+if (searchData) {
+    searchHistory = JSON.parse(searchData);
+} else {
+    searchHistory = [];
+}
 
 function init() {
-    for (i = 0; i < keys.length; i++) { //iterates through the keys
-        var cityName = keys[i]; //sets cityName to the key value
+
+    for (i = 0; i < searchHistory.length; i++) { //iterates through the indexes
+        var cityName = searchHistory[i]; //sets cityName
         var cityBtn = $('<button>').text(cityName); //makes a button with cityName as the text content
         cityBtn.addClass("btn btn-secondary city-btn"); //adds classes to buttons
-        btnArray.push(cityName); //adds cityName to array to check for repetition later
         btnParentEl.append(cityBtn); //apends to parent element
     }
 
@@ -51,17 +57,19 @@ function handleSearch(cityName) { //retrieves city name from search bar
             if (!response.ok) {
                 alert("Geolocation not found"); //alert if a non existant city is entered
             } else {
-                localStorage.setItem(cityName, cityName); //adds existing city to local storage to have premade buttons on refresh.
 
-                if (btnArray.includes(cityName) === false) { //checks to see if the array already includes the city name I searched
+
+                if (searchHistory.includes(cityName) === false) { //checks to see if the array already includes the city name I searched
                     var cityBtn = $('<button>').text(cityName);
                     cityBtn.addClass("btn btn-secondary city-btn");
-                    btnArray.push(cityName);
+                    searchHistory.push(cityName);
                     btnParentEl.append(cityBtn);
-                }
 
-            } 
-            
+                    //adds existing city to local storage to have premade buttons on refresh.
+                    localStorage.setItem("searchData", JSON.stringify(searchHistory));
+                }
+            }
+
             return response.json();
         }).then(function (data) {
             showWeather(data);
@@ -132,14 +140,14 @@ init();//call on my initializer function
 searchBtnEl.on('click', function () {
     var searchVal = $('.search-box').val().toLowerCase(); //extracts text from search box and makes it lower case to be consistent
     var cityNameArray = searchVal.split(" "); //makes the array, even if the city name is just one word.
-    var cityName ="";
+    var cityName = "";
     var wordArray;
 
     //i made this because I wanted uniformity on the previous search buttons regardless of what the user types.
-    for(i=0; i<cityNameArray.length; i++){ //handles if the city has mulitple words in it (San Diego, Los Angeles, etc.)
+    for (i = 0; i < cityNameArray.length; i++) { //handles if the city has mulitple words in it (San Diego, Los Angeles, etc.)
         wordArray = cityNameArray[i].split(""); //splits the word up into individual letters
-        wordArray[0]= wordArray[0].toUpperCase(); //makes the first letter of the word uppercase
-        cityName = cityName+ wordArray.join("") +" "; //string builder to put the city name back together
+        wordArray[0] = wordArray[0].toUpperCase(); //makes the first letter of the word uppercase
+        cityName = cityName + wordArray.join("") + " "; //string builder to put the city name back together
     }
 
     handleSearch(cityName); //sends new (formatted) word to handleSearch function
